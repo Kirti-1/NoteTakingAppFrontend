@@ -111,3 +111,30 @@
     background: #0056b3;
   }
   
+  /* in styles.css */
+.custom-alert {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  z-index: 1000;
+  color: white;
+  animation: fadeInOut 3s ease-in-out forwards;
+}
+
+.custom-alert.success {
+  background-color: #4caf50; /* green */
+}
+
+.custom-alert.error {
+  background-color: #f44336; /* red */
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(-10px); }
+  10% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-10px); }
+}
