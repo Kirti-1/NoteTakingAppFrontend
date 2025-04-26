@@ -45,7 +45,17 @@ function NotePage() {
     console.log(body);
     // Here you would make the API call, e.g., with axios
     axios.post('http://localhost:8080/note/add', { subjectLine, body, createdBy: "Kirti Arora" })
-      .then((response) => { setApiStatus("success"); })
+      .then((response) => { 
+        console.log("response"+JSON.stringify(response));
+        if(response.data.result){
+          setApiStatus(response.data.result);
+
+          //Added note Id to the hidden element, reference this when clicked on saved and done button!
+          document.getElementById("ReferenceNoteId").innerText = response.data.notes[0].id;
+        }else{
+          setApiStatus("error");
+        }
+        })
       .catch((error) => { setApiStatus("error"); });
 
     // Simulate Hardcoded success for testing
@@ -55,7 +65,16 @@ function NotePage() {
   }
 
 function SaveNote(){
-  console.log("clicked on save note!!");
+   // Simulate Hardcoded success for testing
+    // setApiStatus("savedsuccess");
+    // reset the api status to be able to show the status again.
+    var idExists = document.getElementById("ReferenceNoteId").innerText;
+    if(!isNaN(parseInt(idExists))){
+      //run update api 
+    }else{
+      setApiStatus("noteaddwarning");
+    }
+    setTimeout(()=>setApiStatus(null), 1000);
 }
 function doneNote(){
   /*add a loader along with pop up saying redirecting to home page & update the note for id if id exist otherwise show error
@@ -73,6 +92,12 @@ function doneNote(){
       )}
       {apiStatus === "error" && (
         <div className="custom-alert error">⚠️ Something went wrong. Try again.</div>
+      )}
+      {apiStatus === "savedsuccess" && (
+        <div className="custom-alert success">✅ Note Saved Successfully!</div>
+      )}
+      {apiStatus === "noteaddwarning" && (
+        <div className="custom-alert warning">⚠️ Add the Note First!</div>
       )}
     <div style={{textAlign:'right'}}><button className="add-note" onClick={() => doneNote()}>
               <i className="fas fa-check"></i>  Done

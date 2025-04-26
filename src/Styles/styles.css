@@ -148,6 +148,10 @@
 .custom-alert.error {
   background-color: #f44336; /* red */
 }
+.custom-alert.warning {
+  background-color: #eeff00; /* red */
+  color: black;
+}
 
 @keyframes fadeInOut {
   0% { opacity: 0; transform: translateY(-10px); }
