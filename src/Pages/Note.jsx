@@ -54,6 +54,18 @@ function NotePage() {
     setTimeout(()=>setApiStatus(null), 1000);
   }
 
+function SaveNote(){
+  console.log("clicked on save note!!");
+}
+function doneNote(){
+  /*add a loader along with pop up saying redirecting to home page & update the note for id if id exist otherwise show error
+  show Note not added, are you sure you want to continue, - have two buttons cancel and ok.
+  on "Ok" - redirect to home page without adding the note
+  on "Cancel" - don't  do anything stay on the same page.
+  */ 
+  console.log("clicked on Done note!!");
+}
+
   return (
     <>
      {apiStatus === "success" && (
@@ -62,15 +74,19 @@ function NotePage() {
       {apiStatus === "error" && (
         <div className="custom-alert error">⚠️ Something went wrong. Try again.</div>
       )}
-
+    <div style={{textAlign:'right'}}><button className="add-note" onClick={() => doneNote()}>
+              <i className="fas fa-check"></i>  Done
+            </button></div>
       <div className="container">
         <header>
           <h1><i className="fas fa-book-open"></i> My Diary</h1>
+          
         </header>
+    
 
         <div className="form-section">
           <input type="text" id="subject" placeholder="📝 Subject line of your diary..." />
-
+          <p id="ReferenceNoteId" style={{display:'none'}}></p>
           <div className="toolbar">
             <button onClick={() => execCmd('bold')} title="Bold"><i className="fas fa-bold"></i></button>
             <button onClick={() => execCmd('italic')} title="Italic"><i className="fas fa-italic"></i></button>
@@ -93,8 +109,21 @@ function NotePage() {
           <div id="editor" contentEditable="true" placeholder="💭 Write your thoughts here..."></div>
 
           <div id="quote" className="motivational-quote">✨ “Every moment is a fresh beginning.” – T.S. Eliot</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 
-          <button className="add-note" onClick={addNote}><i className="fas fa-plus"></i> Add Note</button>
+            {/* after adding the note don't clear the content!
+                1. add a pop up saying click on Done to view your note.
+                2. store the id in {ReferenceNoteId} innertext for save changes and done to reference.
+            */}
+            <button className="add-note" onClick={() => addNote()}>
+              <i className="fas fa-plus"></i> Add Note
+            </button>
+            {/* disable the save button till note is not added manually. */}
+            <button className="save-note" onClick={() => SaveNote()}>
+              <i className="fas fa-check"></i>  Save Note
+            </button>
+          </div>
+
         </div>
       </div>
     </>
