@@ -25,13 +25,15 @@ function NotePage() {
 
   useEffect(() => {
     if (apiStatus) {
-      document.getElementById("subject").value = '';
-      document.getElementById("editor").innerHTML = '';
+      // document.getElementById("subject").value = '';
+      // document.getElementById("editor").innerHTML = '';
       
     }
   }, [apiStatus]);
 
   useEffect(() => {
+    document.getElementById("subject").value = '';
+    document.getElementById("editor").innerHTML = '';
     const quoteBox = document.getElementById("quote");
     if (!quoteBox) return; // Graceful early exit if element is missing
     const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
@@ -43,7 +45,12 @@ function NotePage() {
     let body = document.getElementById("editor").innerHTML;
     console.log(subjectLine);
     console.log(body);
+    // first check if the note is already added using the referencenoteid, if yes don't re-run the below api, else present a warning to note already added save your changes.
     // Here you would make the API call, e.g., with axios
+
+    var idExists = document.getElementById("ReferenceNoteId").innerText;
+    if(isNaN(parseInt(idExists))){
+
     axios.post('http://localhost:8080/note/add', { subjectLine, body, createdBy: "Kirti Arora" })
       .then((response) => { 
         console.log("response"+JSON.stringify(response));
@@ -57,7 +64,9 @@ function NotePage() {
         }
         })
       .catch((error) => { setApiStatus("error"); });
-
+      }else{
+        setApiStatus("notealreadyadded");
+      }
     // Simulate Hardcoded success for testing
     // setApiStatus("success");
     // reset the api status to be able to show the status again.
@@ -71,6 +80,26 @@ function SaveNote(){
     var idExists = document.getElementById("ReferenceNoteId").innerText;
     if(!isNaN(parseInt(idExists))){
       //run update api 
+      let subjectLine = document.getElementById("subject").value;
+      let body = document.getElementById("editor").innerHTML;
+      axios.put('http://localhost:8080/note/list/'+idExists, { id : idExists, subjectLine, body})
+      .then((response) => { 
+        console.log("response"+JSON.stringify(response));
+        if(response.data.result){
+          setApiStatus("savedsuccess");
+        }else{
+          setApiStatus("error");
+        }
+        })
+      .catch((error) => { 
+        console.log(error);
+        setApiStatus("error"); });
+
+
+
+
+      //stimulate the savedsuccess message for testing purpose.
+      // setApiStatus("savedsuccess");
     }else{
       setApiStatus("noteaddwarning");
     }
@@ -99,6 +128,10 @@ function doneNote(){
       {apiStatus === "noteaddwarning" && (
         <div className="custom-alert warning">⚠️ Add the Note First!</div>
       )}
+      {apiStatus === "notealreadyadded" && (
+        <div className="custom-alert warning">⚠️ Note Already added, <br/> please save your changes!</div>
+      )}
+      
     <div style={{textAlign:'right'}}><button className="add-note" onClick={() => doneNote()}>
               <i className="fas fa-check"></i>  Done
             </button></div>
