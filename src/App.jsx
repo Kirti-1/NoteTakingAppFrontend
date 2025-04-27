@@ -18,6 +18,10 @@ const router = createBrowserRouter([{
 {
   path : "/Note",
   element : <NotePage/>
+},
+{
+  path : "/Note/:NoteId",
+  element : <NotePage/>
 },{
   path : "*",
   element : <PageNotFound/>

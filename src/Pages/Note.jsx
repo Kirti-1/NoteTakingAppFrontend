@@ -2,6 +2,7 @@ import './../Styles/styles.css'
 
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useParams } from 'react-router-dom';
 
 function execCmd(command) {
   if (command === 'insertImage') {
@@ -14,6 +15,7 @@ function execCmd(command) {
 
 function NotePage() {
   const [apiStatus, setApiStatus] = useState(null);
+  const {NoteId} = useParams();
 
   const quotes = [
     "✨ Believe in yourself and all that you are.",
@@ -32,8 +34,29 @@ function NotePage() {
   }, [apiStatus]);
 
   useEffect(() => {
+    //when fresh page getting loaded make sure to clear the subject line body and ReferenceNoteId
     document.getElementById("subject").value = '';
     document.getElementById("editor").innerHTML = '';
+    document.getElementById("ReferenceNoteId").textContent = '';
+    console.log("NoteId" + JSON.stringify(NoteId));
+    if(NoteId){
+      //select query - getapi of that specific note.
+      axios.get(`http://localhost:8080/note/list/${NoteId}`)
+        .then((response) => {
+          console.log(JSON.stringify(response));
+          let subjectLine =response.data.notes[0].subjectLine;
+          let body = response.data.notes[0].body;
+          document.getElementById("subject").value = subjectLine;
+          document.getElementById("editor").innerHTML = body;
+        })
+        .catch((error) => {
+          console.error(error);
+          window.location.href='/';
+        });
+      
+      document.getElementById("ReferenceNoteId").textContent = NoteId;
+    }
+
     const quoteBox = document.getElementById("quote");
     if (!quoteBox) return; // Graceful early exit if element is missing
     const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
@@ -106,12 +129,36 @@ function SaveNote(){
     setTimeout(()=>setApiStatus(null), 1000);
 }
 function doneNote(){
-  /*add a loader along with pop up saying redirecting to home page & update the note for id if id exist otherwise show error
+  /*a
+  dd a loader along with pop up saying redirecting to home page & update the note for id if id exist otherwise show error
   show Note not added, are you sure you want to continue, - have two buttons cancel and ok.
   on "Ok" - redirect to home page without adding the note
   on "Cancel" - don't  do anything stay on the same page.
   */ 
-  console.log("clicked on Done note!!");
+  let idExists = document.getElementById("ReferenceNoteId").textContent;
+  if(!isNaN(parseInt(idExists))){
+    //run update api 
+    let subjectLine = document.getElementById("subject").value;
+    let body = document.getElementById("editor").innerHTML;
+    axios.put('http://localhost:8080/note/list/'+idExists, { id : idExists, subjectLine, body})
+    .then((response) => { 
+      console.log("response"+JSON.stringify(response));
+      if(response.data.result){
+        setApiStatus("savedsuccessRedirect");
+        window.location.href = '/';
+      }else{
+        setApiStatus("error");
+      }
+      })
+    .catch((error) => { 
+      console.log(error);
+      setApiStatus("error"); 
+    });
+  }else{
+    setApiStatus("noteaddwarning");
+  }
+  setTimeout(()=>setApiStatus(null), 1000);
+
 }
 
   return (
@@ -124,6 +171,9 @@ function doneNote(){
       )}
       {apiStatus === "savedsuccess" && (
         <div className="custom-alert success">✅ Note Saved Successfully!</div>
+      )}
+      {apiStatus === "savedsuccessRedirect" && (
+        <div className="custom-alert success">✅ Note Saved Successfully, Redirecting to Home Page!</div>
       )}
       {apiStatus === "noteaddwarning" && (
         <div className="custom-alert warning">⚠️ Add the Note First!</div>

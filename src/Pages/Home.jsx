@@ -9,6 +9,9 @@ import coverPic from './../assets/cover_pic.png';
 
 function HomePage() {
   const [notes, setNotes] =  useState([]) 
+  const [resp, setResp] = useState(null);
+
+  const [loader, setLoader] = useState(null);
   useEffect(() => {
     axios.get('http://localhost:8080/note/lists')
       .then((response) => {
@@ -21,10 +24,44 @@ function HomePage() {
   }, []);
 
 
-  function onClickTrash(id){
-    console.log("Trash Clicked!!" + id) ;
-    //delete api for the id 
+  function onClickTrash(id) {
+    setLoader("loading"); // Show loader when delete is initiated
+  
+    axios.delete(`http://localhost:8080/note/list/${id}`)
+      .then((response) => {
+        console.log(response.data);
+        setResp("deletesuccess"); // Show success message
+        // Refetch notes after a short delay to show the loader and then fetch the updated list
+        setTimeout(() => {
+          axios.get('http://localhost:8080/note/lists')
+            .then((response) => {
+              setNotes(response.data.notes);
+
+             setResp(null); // Hide loader after notes are refreshed
+             setLoader(null); // Hide loader after notes are refreshed
+           
+            })
+            .catch((error) => {
+              console.error("Error refreshing notes:", error);
+              setResp("deleteerror");
+              setLoader(null); // Hide loader after notes are refreshed
+           
+            });
+        }, 1000);
+      })
+      .catch((error) => {
+        console.log(error);
+        setResp("deleteerror"); // Show error message
+        setTimeout(() => {
+          setResp(null); // Hide loader after error
+          setLoader(null); // Hide loader after notes are refreshed
+           
+        }, 2000);
+      });
+  
+    console.log("Trash Clicked!!" + id);
   }
+  
 
   function onClickEdit(id){
     console.log("Edit Clicked!!" + id);
@@ -38,9 +75,30 @@ function HomePage() {
         5. after adding the note don't clear the subject and body directly, let's create a done button for that.
         6. Done button will redirect our user to home page.
      */
+    // let subjectLine = document.querySelector(`[id="${id}"] .card-title`).innerText;
+    // let body = document.querySelector(`[id="${id}"] .card-text`).innerHTML;
+    
+    window.location.href = `/Note/${id}`;
+
+    // document.getElementById("ReferenceNoteId").textContent = id;
+    // document.getElementById("subject").value = subjectLine;
+    // document.getElementById("editor").innerHTML = body;
+
   }
   return (
     <>
+    {loader === "loading" && (
+      <div ><div className="background-overlay" id="overlay"></div>
+      <div className="loader" id="loader"></div>
+      </div>
+    )}
+    {resp === "deletesuccess" && (
+      
+        <div className="custom-alert success">✅ Note Deleted Successfully!</div>
+      )}
+      {resp === "deleteerror" && (
+        <div className="custom-alert error">⚠️ Something went wrong while delete. <br/>Try again.</div>
+      )}
       <div className="container">
         <header>
           <h1><i className="fas fa-home"></i> Home Page</h1>
