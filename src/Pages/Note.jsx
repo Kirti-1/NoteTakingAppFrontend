@@ -14,6 +14,8 @@ function execCmd(command) {
 }
 
 function NotePage() {
+  const apiUrl = import.meta.env.VITE_API_URL;
+
   const [apiStatus, setApiStatus] = useState(null);
   const {NoteId} = useParams();
 
@@ -41,7 +43,7 @@ function NotePage() {
     console.log("NoteId" + JSON.stringify(NoteId));
     if(NoteId){
       //select query - getapi of that specific note.
-      axios.get(`http://localhost:8080/note/list/${NoteId}`)
+      axios.get(`${apiUrl}/note/list/${NoteId}`)
         .then((response) => {
           console.log(JSON.stringify(response));
           let subjectLine =response.data.notes[0].subjectLine;
@@ -74,7 +76,7 @@ function NotePage() {
     var idExists = document.getElementById("ReferenceNoteId").innerText;
     if(isNaN(parseInt(idExists))){
 
-    axios.post('http://localhost:8080/note/add', { subjectLine, body, createdBy: "Kirti Arora" })
+    axios.post(`${apiUrl}/note/add`, { subjectLine, body, createdBy: "Kirti Arora" })
       .then((response) => { 
         console.log("response"+JSON.stringify(response));
         if(response.data.result){
@@ -105,7 +107,7 @@ function SaveNote(){
       //run update api 
       let subjectLine = document.getElementById("subject").value;
       let body = document.getElementById("editor").innerHTML;
-      axios.put('http://localhost:8080/note/list/'+idExists, { id : idExists, subjectLine, body})
+      axios.put(`${apiUrl}/note/list/${idExists}`, { id : idExists, subjectLine, body})
       .then((response) => { 
         console.log("response"+JSON.stringify(response));
         if(response.data.result){
@@ -140,7 +142,7 @@ function doneNote(){
     //run update api 
     let subjectLine = document.getElementById("subject").value;
     let body = document.getElementById("editor").innerHTML;
-    axios.put('http://localhost:8080/note/list/'+idExists, { id : idExists, subjectLine, body})
+    axios.put(`${apiUrl}/note/list/${idExists}`, { id : idExists, subjectLine, body})
     .then((response) => { 
       console.log("response"+JSON.stringify(response));
       if(response.data.result){

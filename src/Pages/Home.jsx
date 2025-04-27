@@ -11,9 +11,11 @@ function HomePage() {
   const [notes, setNotes] =  useState([]) 
   const [resp, setResp] = useState(null);
 
+  const apiUrl = import.meta.env.VITE_API_URL;
+
   const [loader, setLoader] = useState(null);
   useEffect(() => {
-    axios.get('http://localhost:8080/note/lists')
+    axios.get(`${apiUrl}/note/lists`)
       .then((response) => {
         setNotes(response.data.notes);
         
@@ -27,13 +29,13 @@ function HomePage() {
   function onClickTrash(id) {
     setLoader("loading"); // Show loader when delete is initiated
   
-    axios.delete(`http://localhost:8080/note/list/${id}`)
+    axios.delete(`${apiUrl}/note/list/${id}`)
       .then((response) => {
         console.log(response.data);
         setResp("deletesuccess"); // Show success message
         // Refetch notes after a short delay to show the loader and then fetch the updated list
         setTimeout(() => {
-          axios.get('http://localhost:8080/note/lists')
+          axios.get(`${apiUrl}/note/lists`)
             .then((response) => {
               setNotes(response.data.notes);
 
